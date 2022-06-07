@@ -3,40 +3,91 @@
 development by Photo synthesis
 
 
-## 기업 과업 소개
-<img width="1029" alt="image" src="https://user-images.githubusercontent.com/70171637/166200515-ed453473-008d-4ea7-9bbc-e37e7e92dd51.png">
-- 실제데이터는 거리별 Blur 효과처럼 흐릿해지지만 합성데이터(vkitti)에서는 거리별, 자연 환경에 상관없이 선명하게 나타남
-- Photo Sythesis 팀은 가상환경 내 거리별 차이와 다양한 환경에 대해 구현중에 있으며 이번 과제에서는 별도 OpenCV와 같은 영상처리 기법으로 데이터 증강 또는 같이 주어지는 Depthmap or Segmentation 이미지 정보를 통해 새로운 아이디어 제시 가능
-
---------------------------
-## 원인 분석
+# 기업 과업 소개
+![image](https://user-images.githubusercontent.com/96898057/172413781-cee22cb5-6a19-458c-bc17-2351cc194cfa.png)
+- 대낮과 같은 일반적인 환경에서는 detecting 성능이 준수하지만, 자연 환경이 변하면 detecting 성능이 떨어짐
+- Photo Sythesis 팀은 다양한 환경에서도 detecting 성능을 높히는 방법 대해 연구중에 있으며, 제한된 데이터를 image augmentation으로 다양한 환경으로 증강 시킨 후 학습하여 성능 개선을 기대함.
 
 
-현실세계에서 Detecting을 하는데 발생하는 원인
+------------------------------
+# 원인 분석
 
+## 원인 분석을 위한 방법 
+- Detecting model : yolov5
+- Train Dataset : kitti , vkitti 
+- test dataset : bdd100k , kitti
+
+###  kitti 환경에서는 잘 detecting 하는 이미지 
+![image](https://user-images.githubusercontent.com/96898057/172396233-8cca2670-5e00-4167-a27f-570986daf9b8.png)
+
+
+###  다른 환경에서 Detecting 되지 않는 이미지 
+![image](https://user-images.githubusercontent.com/96898057/172396327-d1484024-711c-4ea1-9185-7adb840db91e.png)
+
+
+---------------------------------------------------
+
+## Occlusion 문제가 잘 Detecting 되는 원인
+ ### yolov5 data agumentation 혹은 vkitti kitti 자체의 바운딩박스 규칙 또는 vkitti와 kitti의 데이터셋 안에 있는 occlusion된 상황만을 잘 인식 할 수도 있다.
+ 
+<details>
+<summary>Occlusion 문제가 잘 Detecting 되는 원인(가제) </summary>
+<div markdown="1">
+
+- Bag of freebies
+  
+  bag of freebies는 Data augmentation, Loss function, Regularization 등 학습에 관여하는 요소로, training cost를 증가시켜서 정확도를 높이는 방법들을 의미한다.
+  
+- Bag of Specials
+  
+  Bag of Specials는 architecture 관점에서의 기법들이 주를 이루고 post processing도 포함이 되어 있으며, 오로지 inference cost만 증가시켜서 정확도를 높이는 기법들을 의미한다.
+  
+- Self-Adversarial Training
+
+  input image에 FGSM과 같은 adversarial attack을 가해서 model이 예측하지 못하게 만든다. 그 후 perturbed image와 원래의 bounding box GT를 가지고 학습을 시키는 것을 Self-Adversarial Training이라 한다. 이 방식은 보통 정해진 adversarial attack에 robustness를 높이기 위해 진행하는 defense 방식인데, 이러한 기법을 통해 model이 detail한 부분에 더 집중하는 효과를 보고 있다.
+  
+- Mosaic Augmentation
+  
+  각기 다른 4개의 image와 bounding box를 하나의 512x512 image로 합쳐주며, 당연히 image의 모양 변화에 따라bounding box GT 모양도 바뀌게 된다. 이를 통해 하나의 input으로 4개의 image를 배우는 효과를 얻을 수 있어 Batch Normalization의 statistics 계산에 좋은 영향을 줄 수 있다고 한다. 
+  
+  Mosaic Augmentation을 이용하면 기존 batch size가 4배로 커지는 것과 비슷한 효과를 볼 수 있어 작은 batch size를 사용해도 학습이 잘된다.
+  
+  또한, 4개의 image를 하나로 합치는 과정에서 자연스럽게 small object들이 많아지다 보니 small object를 학습에서 많이 배우게 되어 small object에 대한 성능이 높아지는 효과도 
+  있는 것 같다.
+</div>
+</details>
+
+# 현실세계에서 Detecting을 하는데 발생하는 원인
 - 물체나 사물에 가려져 있는 객체
 - 다양한 자연 환경으로 인한 blur로 Detecting 성능 저하
 - 한정되어 있는 합성 데이터를 통해 학습할 시 다양한 환경에 대한 대비가 미흡
 => 맑은 날씨 기준의 데이터를 다양한 환경으로 변화 시켜 Object Detecting의 성능을 개선해보자
 
 
+iteraion 
+img size 
+conetent 가중치 설명
+
+
 ----------------------------------------
-## 문제를 해결하기 위한 방안   
+# 문제를 해결하기 위한 방안   
 
-2. 자율 주행중 occlusion된 차량을 detecting 
-- yolo v5 l6 모델을 사용
+
+# Domain Apdaptaion 
+# DR 
+# 앤드류응 data centric 
+
+- 얘네들의 말중에 괜찮은 부분을 비벼서 우리가 했다라고 말할 수 있다.
+이부분은 전적 
+
 - CycleGan, Neural Style Transfer로 DataAugmentation을 하여 학습데이터양을 증대
+---------------------------------------
+가설
+합성데이터를 바꾸는것 -> cost가 적다. -> cycle gan이나 neural style 바꿔서 조금더 좋은 품질인가? 더 realstic한 이미지가 도움이된다.
 
-<details>
-<summary>사용한 모델 설명</summary>
-<div markdown="1">
+## Cycle Gan 
+![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/96898057/172393501-7a137de4-29d3-42ce-9de9-38e3a57fc517.gif)![ezgif com-gif-maker](https://user-images.githubusercontent.com/96898057/172393522-ef717b4b-0b68-48ce-91dc-70c89095669d.gif)
 
-
-<details>
-<summary>yolo v5 l6란?</summary>
-<div markdown="1">
-</div>
-</details>
 
 
 <details>
@@ -44,6 +95,15 @@ development by Photo synthesis
 <div markdown="1">
 </div>
 </details>
+
+## Nerual Style Tranfer 
+
+![normal 20](https://user-images.githubusercontent.com/96898057/172377408-ae27f769-2bb4-407e-8989-969a4f999ddc.gif)![rain neural20](https://user-images.githubusercontent.com/96898057/172378068-0e5d78ea-3d48-40c6-a3fa-9b89c6b123a4.gif)
+
+
+
+
+
 
   
 <details>
@@ -136,8 +196,6 @@ development by Photo synthesis
 </div>
 </details> 
 
-  </div>
-</details>
 
 
 
@@ -307,7 +365,21 @@ python train.py  --img 1280 --batch 8 --epochs 300 --data '../datasets/vkitti2.0
 </details>
   </div>
 </details>
----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+# 결과
+test data에 대한 설명
+(제약조건, 이유)
+
+test 결과 (map , 정성적인 것)
+
+이
+
+
+
+
+
+
+--------------------------------------------------------------
   
 예상 되는 문제점과 더 생각해볼점
 - Neural Style Transfer를 사용하면서 어떻게 시간을 단축시킬 수 있을지
@@ -319,6 +391,8 @@ python train.py  --img 1280 --batch 8 --epochs 300 --data '../datasets/vkitti2.0
 -
 - 합성데이터의 자동차에만 blur 정도를 적용시켜 DR 효과를 줄 수 있을까?
 
+
+
 -------------------------------------------------------------
 # reference 
 
@@ -327,6 +401,5 @@ python train.py  --img 1280 --batch 8 --epochs 300 --data '../datasets/vkitti2.0
 [2] https://github.com/sukkritsharmaofficial/NEURALFUSE
 
 [3]
-
 
 
