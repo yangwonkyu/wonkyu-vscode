@@ -320,7 +320,7 @@ python train.py  --img 1280 --batch 8 --epochs 300 --data '../datasets/vkitti2.0
 - 합성데이터의 자동차에만 blur 정도를 적용시켜 DR 효과를 줄 수 있을까?
 
 -------------------------------------------------------------
-# refference 
+# reference 
 
 [1] Photorealistic Style Transfer via Wavelet Transforms(Jaejun Yoo, Youngjung Uh, Sanghyuk Chun, Byeongkyu Kang, Jung-Woo Ha)  
 
